@@ -109,8 +109,33 @@ function setDefaultAccount(){
 }
 
 function newTokenFixed(){
-  let [supply] = getAndClear("cmd-new-token",["supply"]);
+  let [supply] = getAndClear("cmd-new-token-fixed",["supply"]);
   sendCommand("new-token-fixed", {supply}, "New token", res => res.token);
+}
+
+function newTokenMutable(){
+  let [minter] = getAndClear("cmd-new-token-mutable",["minter"]);
+  sendCommand("new-token-mutable", {minter}, "New mutable token", res => res.token);
+}
+
+function newBadgeFixed(){
+  let [supply] = getAndClear("cmd-new-badge-fixed",["supply"]);
+  sendCommand("new-badge-fixed", {supply}, "New badge", res => res.token);
+}
+
+function newBadgeMutable(){
+  let [minter] = getAndClear("cmd-new-badge-mutable",["minter"]);
+  sendCommand("new-badge-mutable", {minter}, "New mutable badge", res => res.token);
+}
+
+function mint(){
+  let [resourceDef,supply,minter] = getAndClear("cmd-mint",["resource-def","supply","minter"]);
+  sendCommand("mint/" + resourceDef, {resourceDef,supply,minter}, "Mint", () => "Success");
+}
+
+function transfer(){
+  let [resourceDef,amount,recipient] = getAndClear("cmd-transfer",["resource-def","amount","recipient"]);
+  sendCommand("transfer/" + resourceDef + "/" + recipient, {amount}, "Transfer", () => "Success");
 }
 
 function show(){
@@ -145,6 +170,11 @@ $(function(){
   $("#cmd-new-account").click(newAccount);
   $("#cmd-set-default-account").click(setDefaultAccount);
   $("#cmd-new-token-fixed").click(newTokenFixed);
+  $("#cmd-new-token-mutable").click(newTokenMutable);
+  $("#cmd-new-badge-fixed").click(newBadgeFixed);
+  $("#cmd-new-badge-mutable").click(newBadgeMutable);
+  $("#cmd-mint").click(mint);
+  $("#cmd-transfer").click(transfer);
   $("#cmd-show").click(show);
   $("#cmd-new-accumulating-vault").click(newAccumulatingVault);
   $("#cmd-refresh").click(refresh);

@@ -31,14 +31,15 @@ most endpoint will set the default account if the field `currentAccount` is prov
 - `/addr/:addr` return the detail about the object at the address provided, it will be in text format in the `out` field
 - `/addr` show the full ledger
 - `/new-token-fixed` create a token with `supply` amount of token given to current account
+- `/new-token-mutable` create a mutable supply of token with `minter` as minter
+- `/new-badge-fixed` create a badge with `supply` amount of token given to current account
+- `/new-badge-mutable` create a mutable supply of badge with `minter` as minter
+- `/mint/:resourceDef` mint some tokens, take as input `supply` and `minter`
+- `/transfer/:resourceDef/:recipient` transfer `amount` tokens
 - `/call-function/:blueprint/:fctName` the field `args` is used and provided to the simulator, the output of simultor is parsed and addresses of resources created sent to the client
 - `/call-method/:component/:methodName` the field `args` is used and provided to the simulator, the output of simultor is parsed and addresses of resources created sent to the client
 
 # Limitation
-
-when restarted it lose the ledger
-
-some simulator commands are not implemented yet (mint, transfer, new-token-mutable, new-badge-*)
 
 there is no security at all
 

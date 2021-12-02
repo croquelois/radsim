@@ -82,6 +82,32 @@ function newTokenFixed(nb){
   return getTheExpected(entities, "ResourceDef", out);
 }
 
+function newTokenMutable(minter){
+  let out = exec("resim new-token-mutable " + minter);
+  let entities = parseNewEntities(out);
+  return getTheExpected(entities, "ResourceDef", out);
+}
+
+function newBadgeFixed(nb){
+  let out = exec("resim new-badge-fixed " + nb);
+  let entities = parseNewEntities(out);
+  return getTheExpected(entities, "ResourceDef", out);
+}
+
+function newBadgeMutable(minter){
+  let out = exec("resim new-badge-mutable " + minter);
+  let entities = parseNewEntities(out);
+  return getTheExpected(entities, "ResourceDef", out);
+}
+
+function mint(supply, resourceDef, minter){
+  exec("resim mint " + supply + " " + resourceDef + " " + minter);
+}
+
+function transfer(amount,resourceDef,recipient){
+  exec("resim transfer " + amount + " " + resourceDef + " " + recipient);
+}
+
 function setDefaultAccount(addr){
   exec("resim set-default-account " + addr + " " + g_keys[addr]);
 }
@@ -115,7 +141,7 @@ function show(addr){
   return exec("resim show " + addr);
 }
 
-function showLedger(addr){
+function showLedger(){
   return exec("resim show-ledger");
 }
 
@@ -142,6 +168,11 @@ module.exports = {
   reset,
   newAccount,
   newTokenFixed,
+  newTokenMutable,
+  newBadgeFixed,
+  newBadgeMutable,
+  mint,
+  transfer,
   setDefaultAccount,
   publish,
   callFunction,
@@ -152,4 +183,3 @@ module.exports = {
   getTheExpected,
   getEntitiesWhichMatchTheMetadata
 }
-

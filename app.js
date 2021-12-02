@@ -6,7 +6,8 @@ const express = require('express');
 const app = express();
 const port = parseInt(process.argv[2]);
 
-resim.reset();
+if(process.argv[4] == "reset")
+  resim.reset();
 resim.setCurrentEpoch();
 console.log("Publishing the blueprint, it make take a while...");
 let pkg = resim.publish(process.argv[3]);
@@ -61,7 +62,7 @@ function sanitizeArguments(args){
 
 function post(path, processor){
   app.post(path, (req,res) => {
-    epoch = resim.setCurrentEpoch();
+    let epoch = resim.setCurrentEpoch();
     try {
       let ret = processor(req);
       ret.epoch = epoch;
@@ -74,20 +75,53 @@ function post(path, processor){
 
 app.use(express.json());
 
-post('/new-account', (req) => ({account: resim.newAccount()}));
-post('/new-set-default-account', (req, res) => {
+post('/new-account', () => ({account: resim.newAccount()}));
+post('/new-set-default-account', (req) => {
   resim.setDefaultAccount(sanitizeAddr(req.body.addr));
   return {};
 });
-post('/addr/:addr', (req,res) => ({"out": resim.show(sanitizeAddr(req.params.addr))}));
-post('/addr', (req,res) => ({"out": resim.showLedger()}));
+post('/addr/:addr', (req) => ({out: resim.show(sanitizeAddr(req.params.addr))}));
+post('/addr', () => ({out: resim.showLedger()}));
 
-post('/new-token-fixed', (req, res) => {
+post('/new-token-fixed', (req) => {
   if(req.body.currentAccount)
     resim.setDefaultAccount(sanitizeAddr(req.body.currentAccount));
   return {token: resim.newTokenFixed(sanitizeNumber(req.body.supply))};
 });
-post('/call-function/:blueprint/:fctName', (req, res) => {
+post('/new-token-mutable', (req) => {
+  if(req.body.currentAccount)
+    resim.setDefaultAccount(sanitizeAddr(req.body.currentAccount));
+  return {token: resim.newTokenMutable(sanitizeAddr(req.body.minter))};
+});
+post('/new-badge-fixed', (req) => {
+  if(req.body.currentAccount)
+    resim.setDefaultAccount(sanitizeAddr(req.body.currentAccount));
+  return {token: resim.newBadgeFixed(sanitizeNumber(req.body.supply))};
+});
+post('/new-badge-mutable', (req) => {
+  if(req.body.currentAccount)
+    resim.setDefaultAccount(sanitizeAddr(req.body.currentAccount));
+  return {token: resim.newBadgeMutable(sanitizeAddr(req.body.minter))};
+});
+post('/mint/:resourceDef', (req) => {
+  let supply = sanitizeNumber(req.body.supply);
+  let resourceDef = sanitizeAddr(req.params.resourceDef);
+  let minter = sanitizeAddr(req.body.minter);
+  if(req.body.currentAccount)
+    resim.setDefaultAccount(sanitizeAddr(req.body.currentAccount));
+  resim.mint(supply,resourceDef,minter);
+  return {};
+});
+post('/transfer/:resourceDef/:recipient', (req) => {
+  let amount = sanitizeNumber(req.body.amount);
+  let resourceDef = sanitizeAddr(req.params.resourceDef);
+  let recipient = sanitizeAddr(req.params.recipient);
+  if(req.body.currentAccount)
+    resim.setDefaultAccount(sanitizeAddr(req.body.currentAccount));
+  resim.transfer(amount,resourceDef,recipient);
+  return {};
+});
+post('/call-function/:blueprint/:fctName', (req) => {
   let blueprint = sanitizeName(req.params.blueprint);
   let fctName = sanitizeName(req.params.fctName);
   let args = req.body.args ? sanitizeArguments(req.body.args) : [];
@@ -95,7 +129,7 @@ post('/call-function/:blueprint/:fctName', (req, res) => {
     resim.setDefaultAccount(sanitizeAddr(req.body.currentAccount));
   return resim.callFunction(pkg, blueprint, fctName, args);
 });
-post('/call-method/:component/:methodName', (req, res) => {
+post('/call-method/:component/:methodName', (req) => {
   let component = sanitizeAddr(req.params.component);
   let methodName = sanitizeName(req.params.methodName);
   let args = req.body.args ? sanitizeArguments(req.body.args) : [];
